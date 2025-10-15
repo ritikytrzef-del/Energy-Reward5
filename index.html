@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earn T Coins App</title>
+  <!-- Telegram SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- OnClickA Ads Script -->
+  <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --tg-theme-bg-color: #F5F7FA;
+      --tg-theme-text-color: #212121;
+      --tg-theme-button-color: #2196F3;
+      --tg-theme-button-text-color: #FFFFFF;
+      --primary-color: #4CAF50;
+      --secondary-color: #FF5722;
+      --accent-color: #2196F3;
+      --gradient-bg: linear-gradient(135deg, #F5F7FA, #E0EAFB);
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      --border-radius: 15px;
+      --success-color: #4CAF50;
+      --error-color: #FF4444;
+    }
+    body { 
+      font-family: 'Poppins', sans-serif;
+      background: var(--gradient-bg);
+      color: var(--tg-theme-text-color);
+      margin: 0; padding: 0; min-height: 100vh;
+      transition: background 0.3s ease;
+    }
+    .header {
+      text-align: center; padding: 25px 20px; background: var(--tg-theme-bg-color);
+      box-shadow: var(--shadow); position: sticky; top: 0; z-index: 10;
+      border-bottom: 2px solid rgba(33, 150, 243, 0.2);
+    }
+    .header h1 { 
+      margin: 0; 
+      font-size: 32px; 
+      font-weight: 700; 
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      animation: fadeIn 0.5s ease;
+    }
+    .coins-display { 
+      font-size: 22px; 
+      font-weight: 600; 
+      color: var(--primary-color); 
+      margin-top: 10px;
+      background: rgba(76, 175, 80, 0.1);
+      padding: 8px 15px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    .content { 
+      padding: 20px; 
+      min-height: calc(100vh - 180px); 
+      overflow-y: auto; 
+      padding-bottom: 100px;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .profile-info { 
+      text-align: center; 
+      padding: 25px; 
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: var(--border-radius); 
+      box-shadow: var(--shadow); 
+      backdrop-filter: blur(5px);
+    }
+    .profile-avatar { 
+      width: 120px; height: 120px; 
+      border-radius: 50%; 
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ddd"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>') no-repeat center; 
+      background-size: cover; 
+      margin: 0 auto 20px; 
+      border: 4px solid var(--primary-color);
+      transition: transform 0.3s ease;
+    }
+    .profile-avatar:hover { transform: scale(1.1); }
+    .ads-area { text-align: center; margin: 60px 0; }
+    .ads-button { 
+      background: linear-gradient(45deg, var(--secondary-color), #FF8A50);
+      color: #FFFFFF; 
+      border: none; 
+      padding: 18px 35px; 
+      border-radius: var(--border-radius); 
+      font-size: 18px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      width: 100%; 
+      margin: 15px 0; 
+      box-shadow: var(--shadow); 
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      pointer-events: auto;
+    }
+    .ads-button:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(255, 87, 34, 0.3);
+    }
+    .leaderboard-list { list-style: none; padding: 0; }
+    .leaderboard-item { 
+      padding: 15px; 
+      margin: 10px 0; 
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: var(--border-radius); 
+      box-shadow: var(--shadow); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      transition: transform 0.3s ease;
+    }
+    .leaderboard-item:hover { transform: translateX(5px); }
+    .leaderboard-item span.rank { font-weight: 700; color: var(--primary-color); }
+    .wallet-balance { 
+      text-align: center; 
+      font-size: 36px; 
+      font-weight: 700; 
+      color: var(--primary-color); 
+      margin: 25px 0;
+      text-shadow: 1px 1px 3px rgba(76, 175, 80, 0.3);
+    }
+    .wallet-usd { font-size: 18px; color: #666; margin-top: -10px; }
+    .redeem-form { 
+      padding: 20px; 
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: var(--border-radius); 
+      box-shadow: var(--shadow); 
+      backdrop-filter: blur(5px);
+    }
+    .redeem-input { 
+      width: 100%; 
+      padding: 12px; 
+      margin: 10px 0; 
+      border: 2px solid rgba(33, 150, 243, 0.2); 
+      border-radius: 10px; 
+      font-size: 16px; 
+      transition: border-color 0.3s ease;
+    }
+    .redeem-input:focus { border-color: var(--accent-color); outline: none; }
+    .redeem-button { 
+      background: linear-gradient(45deg, var(--accent-color), #42A5F5);
+      color: var(--tg-theme-button-text-color); 
+      border: none; 
+      padding: 18px 35px; 
+      border-radius: var(--border-radius); 
+      font-size: 18px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      width: 100%; 
+      margin: 15px 0; 
+      box-shadow: var(--shadow); 
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      pointer-events: auto;
+    }
+    .redeem-button:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+    }
+    .withdrawal-status { 
+      text-align: center; 
+      margin-top: 15px; 
+      font-size: 16px; 
+      font-weight: 600; 
+      padding: 10px; 
+      border-radius: 10px;
+    }
+    .bottom-nav {
+      position: fixed; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.95);
+      border-top: 2px solid rgba(33, 150, 243, 0.1); display: flex; justify-content: space-around; 
+      padding: 12px 0; box-shadow: var(--shadow); z-index: 10;
+      backdrop-filter: blur(5px);
+    }
+    .nav-item { 
+      text-align: center; 
+      color: #888; 
+      cursor: pointer; 
+      padding: 8px; 
+      transition: color 0.3s, transform 0.3s; 
+      pointer-events: auto;
+    }
+    .nav-item.active { 
+      color: var(--accent-color); 
+      transform: scale(1.1);
+    }
+    .nav-item img { 
+      width: 28px; 
+      height: 28px; 
+      display: block; 
+      margin: 0 auto 4px; 
+      filter: grayscale(100%);
+      transition: filter 0.3s;
+    }
+    .nav-item.active img { filter: grayscale(0); }
+    .nav-item span { font-size: 13px; font-weight: 500; }
+    @media (max-width: 480px) { 
+      .content { padding: 15px; padding-bottom: 100px; }
+      .header h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>Earn T Coins</h1>
+    <div class="coins-display" id="coinsDisplay">T Coins: 0</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content active">
+      <div class="profile-info">
+        <div class="profile-avatar"></div>
+        <h2 id="userName">User Profile</h2>
+        <p style="color: #666;">Welcome! Watch ads to earn T Coins. 1 T Coin = $0.0005. Minimum withdrawal: 50 T Coins ($0.025).</p>
+      </div>
+    </div>
+
+    <!-- Ads Tab -->
+    <div id="ads" class="tab-content">
+      <div class="ads-area">
+        <button class="ads-button" onclick="playAds()">Watch Ad (+1 T Coin)</button>
+        <p style="color: #666;">Watch ads to earn 1 T Coin per view! Accumulate and withdraw to Payeer.</p>
+      </div>
+    </div>
+
+    <!-- Leaderboard Tab -->
+    <div id="leaderboard" class="tab-content">
+      <h2 style="text-align: center; color: var(--accent-color);">Leaderboard</h2>
+      <p style="text-align: center; color: #666;">Top earners of T Coins</p>
+      <ul class="leaderboard-list" id="leaderboardList">
+        <!-- Leaderboard items will be added here via JS -->
+      </ul>
+    </div>
+
+    <!-- Wallet Tab -->
+    <div id="wallet" class="tab-content">
+      <div class="wallet-balance" id="walletBalance">Balance: 0 T Coins</div>
+      <div class="wallet-usd" id="walletUsd">($0.00)</div>
+      <div class="redeem-form">
+        <label for="payeerAccount" style="color: var(--tg-theme-text-color);">Payeer Account (e.g., P1234567):</label>
+        <input type="text" id="payeerAccount" class="redeem-input" placeholder="Enter your Payeer account">
+        <button class="redeem-button" onclick="requestWithdrawal()">Request Withdrawal (Min 50 T Coins)</button>
+      </div>
+      <div class="withdrawal-status" id="withdrawalStatus"></div>
+      <p style="color: #666;">Withdrawals are processed manually via Payeer. Requests are sent to <a href="https://t.me/EnergyReward" target="_blank" style="color: var(--accent-color);">@EnergyReward</a>.</p>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('profile')">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Profile">
+      <span>Profile</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('ads')">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'><path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z'/></svg>" alt="Ads">
+      <span>Ads</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('leaderboard')">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'><path d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/></svg>" alt="Leaderboard">
+      <span>Leaderboard</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('wallet')">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'><path d='M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/></svg>" alt="Wallet">
+      <span>Wallet</span>
+    </div>
+  </div>
+
+  <script>
+    // Telegram SDK Init
+    let userId = 'unknown';
+    let userName = 'User';
+    let withdrawalMessageId = null;
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#F5F7FA');
+        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#212121');
+        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#2196F3');
+        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#FFFFFF');
+        const user = tg.initDataUnsafe.user;
+        if (user) {
+          userId = user.id || 'unknown';
+          userName = user.username || user.first_name || 'User';
+        }
+        document.getElementById('userName').textContent = userName;
+      }
+    } catch (e) {
+      console.error('Telegram SDK error:', e);
+    }
+
+    // Coins Management
+    const COIN_VALUE = 0.0005;
+    let coins = parseInt(localStorage.getItem('coins')) || 0;
+    function updateCoins() {
+      console.log('Updating coins:', coins);
+      document.getElementById('coinsDisplay').textContent = `T Coins: ${coins}`;
+      document.getElementById('walletBalance').textContent = `Balance: ${coins} T Coins`;
+      const usdValue = (coins * COIN_VALUE).toFixed(4);
+      document.getElementById('walletUsd').textContent = `($${usdValue})`;
+      localStorage.setItem('coins', coins);
+    }
+    updateCoins();
+
+    // Tab Switching
+    function switchTab(tabName) {
+      console.log('Switching to tab:', tabName);
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      const navItem = event ? event.target.closest('.nav-item') : null;
+      if (navItem) navItem.classList.add('active');
+    }
+
+    // Play Ads
+    let showAd;
+    try {
+      window.initCdTma?.({ id: '6094320' }).then(show => {
+        showAd = show;
+        console.log('Ad script initialized');
+      }).catch(e => console.error('Ads init error:', e));
+    } catch (e) {
+      console.error('Ad script error:', e);
+    }
+
+    function playAds() {
+      console.log('Play Ads clicked');
+      if (showAd) {
+        showAd().then(() => {
+          console.log('Ad played successfully');
+          coins += 1;
+          updateCoins();
+          alert('Ad watched! +1 T Coin');
+          try {
+            if (window.Telegram?.WebApp) {
+              window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+          } catch (e) {
+            console.error('Haptic feedback error:', e);
+          }
+        }).catch(e => console.error('Ad play error:', e));
+      } else {
+        console.log('Ads not ready');
+        alert('Ads not ready. Please try again.');
+      }
+    }
+
+    // Request Withdrawal
+    function requestWithdrawal() {
+      console.log('Withdrawal button clicked');
+      const payeer = document.getElementById('payeerAccount').value.trim();
+      if (coins < 50) {
+        alert('Minimum 50 T Coins required for withdrawal!');
+        return;
+      }
+      if (!payeer) {
+        alert('Please enter your Payeer account!');
+        return;
+      }
+      const usdAmount = (coins * COIN_VALUE).toFixed(4);
+      const message = `🪙 Withdrawal Request Received!\n\n` +
+                      `👤 User ID: ${userId}\n` +
+                      `📛 Username: @${userName}\n` +
+                      `💰 Coins Withdrawn: ${coins} T Coins\n` +
+                      `💵 USD Value: $${usdAmount}\n` +
+                      `💳 Payeer Account: ${payeer}\n\n` +
+                      `Approve or reject manually. Reply to this message if needed.`;
+
+      const botToken = '7470499963:AAHJQDJpjRae9-0eQXI64ZI9MGMIootcyRE';
+      const chatId = '@EnergyReward';
+      const url = `https://cors-anywhere.herokuapp.com/https://api.telegram.org/bot${botToken}/sendMessage`;
+
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'HTML'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          console.log('Withdrawal request sent to @EnergyReward');
+          withdrawalMessageId = data.result.message_id;
+          localStorage.setItem(`withdrawal_${userId}`, JSON.stringify({ status: 'pending', messageId: withdrawalMessageId }));
+          alert('Withdrawal request sent to @EnergyReward! It will be processed manually.');
+          coins = 0;
+          updateCoins();
+          checkStatus();
+        } else {
+          console.error('Telegram API error:', data);
+          alert('Failed to send withdrawal request. Error: ' + data.description);
+        }
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Error sending withdrawal request. Please try again or contact admin.');
+      });
+    }
+
+    // Check Withdrawal Status
+    function checkStatus() {
+      if (!withdrawalMessageId) return;
+
+      const botToken = '7470499963:AAHJQDJpjRae9-0eQXI64ZI9MGMIootcyRE';
+      const url = `https://cors-anywhere.herokuapp.com/https://api.telegram.org/bot${botToken}/getUpdates`;
+
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          offset: withdrawalMessageId
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          const updates = data.result;
+          for (let update of updates) {
+            if (update.message && update.message.reply_to_message && update.message.reply_to_message.message_id === withdrawalMessageId) {
+              const replyText = update.message.text.toLowerCase();
+              if (replyText.includes('approved')) {
+                updateStatus('approved');
+                return;
+              } else if (replyText.includes('rejected')) {
+                updateStatus('rejected');
+                return;
+              }
+            }
+          }
+          setTimeout(checkStatus, 10000);
+        } else {
+          console.error('Status check error:', data);
+        }
+      })
+      .catch(error => {
+        console.error('Status fetch error:', error);
+      });
+    }
+
+    // Update Withdrawal Status on UI
+    function updateStatus(status) {
+      const statusElement = document.getElementById('withdrawalStatus');
+      if (status === 'approved') {
+        statusElement.textContent = 'Withdrawal Approved! 🎉 Payment will be processed soon.';
+        statusElement.style.color = var(--success-color);
+        localStorage.setItem(`withdrawal_${userId}`, JSON.stringify({ status: 'approved', messageId: withdrawalMessageId }));
+      } else if (status === 'rejected') {
+        statusElement.textContent = 'Withdrawal Rejected! 😞 Please contact admin.';
+        statusElement.style.color = var(--error-color);
+        localStorage.setItem(`withdrawal_${userId}`, JSON.stringify({ status: 'rejected', messageId: withdrawalMessageId }));
+      }
+    }
+
+    // Load Saved Status on Page Load
+    window.onload = function() {
+      const savedStatus = localStorage.getItem(`withdrawal_${userId}`);
+      if (savedStatus) {
+        const { status } = JSON.parse(savedStatus);
+        if (status) updateStatus(status);
+      }
+      loadLeaderboard();
+    };
+
+    // Static Leaderboard Data
+    const leaderboardData = [
+      { rank: 1, name: 'CryptoWhale', coins: 15000 },
+      { rank: 2, name: 'TONMaster', coins: 12000 },
+      { rank: 3, name: 'TapKing', coins: 9500 },
+      { rank: 4, name: 'NotcoinHero', coins: 8000 },
+      { rank: 5, name: 'HamsterPro', coins: 6500 },
+      { rank: 6, name: 'BlumBoss', coins: 5500 },
+      { rank: 7, name: 'MajorMiner', coins: 4500 },
+      { rank: 8, name: 'XEmpireElite', coins: 3800 },
+      { rank: 9, name: 'RockyRabbit', coins: 3200 },
+      { rank: 10, name: 'PiggyPlayer', coins: 2800 }
+    ];
+
+    function loadLeaderboard() {
+      console.log('Loading leaderboard');
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+      leaderboardData.forEach(item => {
+        const li = document.createElement('li');
+        li.classList.add('leaderboard-item');
+        li.innerHTML = `<span class="rank">#${item.rank}</span> ${item.name} <span>${item.coins} T Coins</span>`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
