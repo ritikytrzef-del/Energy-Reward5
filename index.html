@@ -1,83 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>RichAds Test</title>
+<meta charset="UTF-8">
+<title>Telegram Ads Buttons</title>
 
-  <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
-  <script>
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-      pubId: "991750",
-      appId: "5111"
+<script>
+  let adsReady = false;
+
+  // Initialize RichAds
+  window.TelegramAdsController = new TelegramAdsController();
+  window.TelegramAdsController.initialize({
+    pubId: "991750",
+    appId: "5111"
+  });
+
+  // Wait until SDK is ready
+  document.addEventListener("DOMContentLoaded", () => {
+    const checkReady = setInterval(() => {
+      if (window.TelegramAdsController?.initialized) {
+        adsReady = true;
+        clearInterval(checkReady);
+        console.log("RichAds Ready");
+      }
+    }, 300);
+  });
+
+  function show(format, extra = {}) {
+    if (!adsReady) {
+      alert("Ad loading… try again in 2–3 seconds");
+      return;
+    }
+
+    window.TelegramAdsController.requestAd({
+      format,
+      ...extra
     });
+  }
+</script>
 
-    // PLAYABLE
-    function ads1() {
-      TelegramAdsController.requestAd({
-        format: "playable"
-      });
-    }
-
-    // INTERSTITIAL VIDEO
-    function ads2() {
-      TelegramAdsController.requestAd({
-        format: "interstitial"
-      });
-    }
-
-    // INTERSTITIAL BANNER
-    function ads3() {
-      TelegramAdsController.requestAd({
-        format: "interstitial"
-      });
-    }
-
-    // EMBEDDED BANNER
-    function ads4() {
-      TelegramAdsController.requestAd({
-        format: "banner",
-        containerId: "embedded_banner"
-      });
-    }
-
-    // PUSH STYLE
-    function ads5() {
-      TelegramAdsController.requestAd({
-        format: "push"
-      });
-    }
-  </script>
-
-  <style>
-    body{font-family:Arial;padding:15px}
-    button{
-      width:100%;
-      padding:12px;
-      margin:6px 0;
-      border:none;
-      border-radius:10px;
-      background:#4f46e5;
-      color:#fff;
-      font-size:16px;
-    }
-    #embedded_banner{margin-top:10px}
-  </style>
+<style>
+  body{font-family:Arial;padding:14px}
+  button{
+    width:100%;padding:12px;margin:6px 0;
+    border:none;border-radius:10px;
+    background:#4f46e5;color:#fff;font-size:16px
+  }
+  #banner_box{margin-top:10px}
+</style>
 </head>
 
 <body>
 
-  <h3>RichAds — Telegram Mini App Test</h3>
+<h3>Ads Test — Click Buttons</h3>
 
-  <button onclick="ads1()">Ads 1 — Playable</button>
-  <button onclick="ads2()">Ads 2 — Interstitial Video</button>
-  <button onclick="ads3()">Ads 3 — Interstitial Banner</button>
-  <button onclick="ads4()">Ads 4 — Embedded Banner</button>
-  <button onclick="ads5()">Ads 5 — Push Style</button>
+<button onclick="show('playable')">Ads 1 — Playable</button>
+<button onclick="show('interstitial')">Ads 2 — Interstitial Video</button>
+<button onclick="show('interstitial')">Ads 3 — Interstitial Banner</button>
+<button onclick="show('banner', { containerId: 'banner_box' })">
+  Ads 4 — Embedded Banner
+</button>
+<button onclick="show('push')">Ads 5 — Push Style</button>
 
-  <!-- banner load area -->
-  <div id="embedded_banner"></div>
+<div id="banner_box"></div>
 
 </body>
 </html>
